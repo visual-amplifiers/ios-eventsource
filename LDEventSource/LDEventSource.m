@@ -26,7 +26,6 @@ static NSInteger const HTTPStatusCodeUnauthorized = 401;
 }
 
 @property (nonatomic, strong) NSURL *eventURL;
-@property (nonatomic, strong) NSURLSessionDataTask *eventSourceTask;
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, strong) NSMutableDictionary *listeners;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
@@ -125,9 +124,10 @@ static NSInteger const HTTPStatusCodeUnauthorized = 401;
 
 - (void)close
 {
+    [session invalidateAndCancel];
     wasClosed = YES;
     [self.eventSourceTask cancel];
-    [self.session finishTasksAndInvalidate];
+    self.eventSourceTask=nil;
     [self.listeners removeAllObjects];
 }
 
@@ -232,6 +232,7 @@ didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSe
     return response && response.statusCode == HTTPStatusCodeUnauthorized;
 }
 
+NSURLSession *session;
 - (void)open
 {
     wasClosed = NO;
@@ -252,15 +253,14 @@ didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSe
     if (self.connectBody.length > 0) {
         request.HTTPBody = self.connectBody;
     }
-    
-    if (self.session) {
-        [self.session invalidateAndCancel];
-    }
-    self.session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]
+
+    [session finishTasksAndInvalidate];
+
+    session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]
                                                  delegate:self
                                             delegateQueue:[NSOperationQueue currentQueue]];
     
-    self.eventSourceTask = [self.session dataTaskWithRequest:request];
+    self.eventSourceTask = [session dataTaskWithRequest:request];
     [self.eventSourceTask resume];
     
     LDEvent *e = [LDEvent new];

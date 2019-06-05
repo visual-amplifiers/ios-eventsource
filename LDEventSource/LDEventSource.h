@@ -47,6 +47,8 @@ typedef void (^LDEventSourceEventHandler)(LDEvent * _Nullable event);
 /// Connect to and receive Server-Sent Events (SSEs).
 @interface LDEventSource : NSObject
 
+@property (nonatomic, strong, nullable) NSURLSessionDataTask *eventSourceTask;
+
 /// Returns a new instance of EventSource with the specified URL.
 ///
 /// @param URL The URL of the EventSource.
