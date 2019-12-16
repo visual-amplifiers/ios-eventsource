@@ -13,5 +13,5 @@ Pod::Spec.new do |s|
 	s.tvos.deployment_target = '9.0'
 	s.requires_arc = true
 	s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
-	s.xcconfig = { 'OTHER_LDFLAGS' => '-lobjc' }
+	s.xcconfig = { 'OTHER_LDFLAGS' => '-lobjc', 'DEFINES_MODULE' => 'YES' }
 end
